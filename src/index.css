@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+/*ajuste de la img */
+.creapx{
+  border-radius: 1rem;
+  /* Definir una clase personalizada */
+
+  width: 50%;       /* ancho al 50% del contenedor/página */
+  height: 50%;      /* alto al 50% del contenedor/página */
+  margin-bottom: 2rem; /* margen inferior */
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3); /* sombra personalizada */
+  border-radius: 12px; /* esquinas redondeadas */
+  margin-top: 2rem;
+}
+
+.Link{
+  text-decoration: none;
+}
