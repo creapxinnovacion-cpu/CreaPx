@@ -69,19 +69,33 @@ const Contacto = () => {
 
     if (!validateForm()) return;
 
+    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+    if (!serviceId || !templateId || !publicKey) {
+      console.error(
+        "EmailJS: revisa VITE_EMAILJS_SERVICE_ID, VITE_EMAILJS_TEMPLATE_ID y VITE_EMAILJS_PUBLIC_KEY (en Vercel: Settings → Environment Variables y vuelve a desplegar)."
+      );
+      alert(
+        "El envío por correo no está configurado en este sitio. Escríbenos por WhatsApp desde esta misma página."
+      );
+      return;
+    }
+
     setIsSending(true);
 
     emailjs
       .send(
-        import.meta.env.VITE_EMAILJS_SERVICE_ID,
-        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+        serviceId,
+        templateId,
         {
           from_name: formData.nombre,
           from_email: formData.email,
           message: formData.mensaje,
           email: "creapxinnovacion@gmail.com",
         },
-        import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+        publicKey
       )
       .then(() => {
         setSuccess(true);
