@@ -233,10 +233,10 @@ const Contacto = () => {
             <h3 className="text-xl font-semibold">Correo Empresarial</h3>
             <p className="text-gray-600 text-sm">Contacto formal</p>
             <a
-              href="mailto:contacto@empresa.com"
+              href="mailto:creapxinnovacion@gmail.com"
               className="text-blue-600 font-medium hover:underline"
             >
-              contacto@empresa.com
+              creapxinnovacion@gmail.com
             </a>
           </div>
         </div>

@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 function Home() {
   return (
     <>
@@ -20,13 +22,19 @@ function Home() {
         </p>
 
         <div className="flex flex-wrap gap-4 justify-center">
-          <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition">
+          <Link
+            to="/contacto"
+            className="inline-flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-blue-900"
+          >
             Solicitar asesoría
-          </button>
+          </Link>
 
-          <button className="px-6 py-3 border border-white rounded-lg hover:bg-white hover:text-black transition">
+          <Link
+            to="/soluciones"
+            className="inline-flex items-center justify-center px-6 py-3 border border-white rounded-lg hover:bg-white hover:text-black transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-blue-900"
+          >
             Ver soluciones
-          </button>
+          </Link>
         </div>
       </section>
 
