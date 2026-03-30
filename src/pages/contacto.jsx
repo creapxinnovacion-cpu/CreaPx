@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import emailjs from "@emailjs/browser";
 
 // ================= IMÁGENES =================
-import javierImg from "../assets/components/img/Javier.png";
+import javierImg from "../assets/components/img/javier.png";
 import cuaImg from "../assets/components/img/cua.jpeg";
 import cajulImg from "../assets/components/img/cajul.jpg";
 
