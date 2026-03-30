@@ -72,6 +72,34 @@ const Tecnologia = () => {
             <li>Community manager</li>
           </ul>
         </div>
+        {/* Camaras de Seguridad */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-2xl font-semibold text-blue-600 mb-4">
+            Camaras de Seguridad
+          </h2>
+          <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-2 list-disc list-inside text-gray-600">
+            <li>Camaras de seguridad</li>
+            <li>DVR</li>
+            <li>IP Cameras</li>
+            <li>Analog Cameras</li>
+            <li>IP Cameras</li>
+            <li>Appliacion para celular</li>
+          </ul>
+        </div>
+        {/* Aire Acondicionado */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-2xl font-semibold text-blue-600 mb-4">
+            Aire Acondicionado
+          </h2>
+          <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-2 list-disc list-inside text-gray-600">
+            <li>Aire Acondicionado</li>
+            <li>Climatización</li>
+            <li>Refrigeración</li>
+            <li>Ventilación</li>
+            <li>Purificación de aire</li>
+            <li>Filtración de aire</li>
+          </ul>
+        </div>
       </section>
     </div>
   );

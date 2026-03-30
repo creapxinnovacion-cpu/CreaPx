@@ -73,6 +73,28 @@ function Servicios() {
                 <li>Extracción inteligente de datos</li>
               </ul>
             </div>
+ {/* climatización de aires a condicionados */}
+            <div className="p-8 border rounded-xl hover:shadow-lg transition">
+              <h2 className="text-2xl font-semibold text-blue-700 mb-4">
+                Climatización de Aire Acondicionado
+              </h2>
+              <ul className="space-y-2 text-gray-700 list-disc pl-5">
+                <li>Instalación de aires acondicionados</li>
+                <li>Mantenimiento de aires acondicionados</li>
+                <li>Reparación de aires acondicionados</li>
+              </ul>
+            </div>
+            {/* Instalacion de Camaras de Seguridad */}
+            <div className="p-8 border rounded-xl hover:shadow-lg transition">
+              <h2 className="text-2xl font-semibold text-blue-700 mb-4">
+                Instalación de Camaras de Seguridad
+              </h2>
+              <ul className="space-y-2 text-gray-700 list-disc pl-5">
+                <li>Instalación de camaras de seguridad</li>
+                <li>Mantenimiento de camaras de seguridad</li>
+                <li>Reparación de camaras de seguridad</li>
+              </ul>
+            </div>
 
             {/* Soporte y Mantenimiento */}
             <div className="md:col-span-2 p-8 border rounded-xl hover:shadow-lg transition">
