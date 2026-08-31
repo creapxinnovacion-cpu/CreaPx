@@ -1,0 +1,730 @@
+# API Agente Contable 🚀
+
+Este es el backend para la plataforma SaaS de contabilidad y procesamiento de Documentos Tributarios Electrónicos (DTE). Está construido bajo un enfoque moderno y modular utilizando **FastAPI**, **SQLAlchemy (ORM)** y validación estructurada basada en **Pydantic**. 
+
+---
+
+## 🏗️ Arquitectura del Proyecto
+
+El proyecto está organizado usando una **Arquitectura Basada en Funcionalidades** (Feature-Based / Domain-Driven) aplicando el principio de *Colocation* (el código que cambia a la vez, vive junto):
+
+* **`api/`**: Agrupa el código por dominios de negocio (ej. `auth`, `empresas`, `users`, `usuario_empresa`). Cada subcarpeta es independiente y contiene todo lo necesario para esa funcionalidad:
+  * `model.py`: Esquema de persistencia mediante SQLAlchemy.
+  * `schema.py`: Modelos Pydantic para validar entradas (*Requests*) y salidas (*Responses*).
+  * `service.py`: Lógica de negocio pura y funcionalidad CRUD.
+  * `router.py`: Exposición directa de los endpoints.
+* **`db/`**: Configuración e instanciación de conexión a la base de datos. (Actualmente configurado con SQLite, listo para migrar a PostgreSQL/Neon).
+* **`main.py`**: El corazón y punto de entrada de la aplicación FastAPI. Agrupa y registra los diferentes *routers*.
+* **`seed.py`**: Script de inicialización rápida de datos de prueba en la base de datos.
+
+---
+
+## 🛠️ Instalación y Configuración
+
+Asegúrate de contar con **Python 3.10+** instalado en tu sistema local.
+
+1. **Clona o ubícate en el directorio matriz:**
+   ```bash
+   cd API-Agente-Contable
+   ```
+
+2. **Crea y activa el entorno virtual virtual:**
+   * En Windows (PowerShell): 
+     ```powershell
+     python -m venv venv
+     .\venv\Scripts\Activate.ps1
+     ```
+   * En Linux/Mac: 
+     ```bash
+     python3 -m venv venv
+     source venv/bin/activate
+     ```
+
+4. **Instala los requerimientos definidos:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+5. **Configura tus variables de entorno:**
+   * Renombra o copia el archivo `.env.example` a `.env` en la raíz del proyecto.
+   * Abre `.env` y sustituye la variable `DATABASE_URL` por la cadena de conexión real de NeonDB:
+   ```env
+   DATABASE_URL="postgresql://usuario:password@host-de-neon.aws.neon.tech/neondb?sslmode=require"
+   SECRET_KEY="TU_CLAVE_SECRETA_PERSONALIZADA"
+   ```
+
+---
+
+## 🚀 Despliegue Local
+
+Para ejecutar el servidor en un entorno de desarrollo local, primero **debes asegurarte de tener el entorno virtual activado**:
+
+1. **Activa el entorno virtual:**
+   * En Windows (CMD/PowerShell): `venv\Scripts\activate`
+   * En Linux/Mac: `source venv/bin/activate`
+
+2. **Ejecuta el servidor con Uvicorn:**
+   (El puerto recomendado para no chocar con el frontend es el 10000 o el 8000).
+
+```bash
+uvicorn main:app --reload --host 0.0.0.0 --port 10000
+```
+
+Una vez que Uvicorn haya iniciado el servidor, podrás acceder a:
+
+* **Endpoint Raíz (Estado Vital):** [http://127.0.0.1:10000/](http://127.0.0.1:10000/)
+* **Health Check API/BD:** [http://127.0.0.1:10000/health](http://127.0.0.1:10000/health)
+* 📖 **Documentación Swagger UI:** [http://127.0.0.1:10000/docs](http://127.0.0.1:10000/docs)
+* 📖 **Documentación ReDoc:** [http://127.0.0.1:10000/redoc](http://127.0.0.1:10000/redoc)
+
+---
+
+## 🔐 Estructura Actual de la Base de Datos
+
+Cuenta con los siguientes modelos fundamentales definidos, ya conectados y relacionados:
+
+* `Empresa` -> Información constitutiva para los *Tenants* u organizaciones contables.
+* `Usuario` -> Gestión y almacenamiento de las credenciales de los distintos operadores.
+* `UsuarioEmpresa` -> Tabla intermedia encargada de gestionar los roles asignados de cada Usuario hacia múltiples y diferentes Empresas.
+
+---
+
+## 🛡️ Autenticación y Seguridad (JWT)
+
+El sistema ya implementa un flujo de seguridad en producción:
+- **Hash de Contraseñas:** Integración de la biblioteca `passlib[bcrypt]` en el servicio `auth_service.py` para encriptar los passwords antes de guardarlos a la BD.
+- **Emisión de Tokens:** Endpoint `/auth/login` activo. Valida credenciales con la BD e instancia un *JSON Web Token* utilizando `python-jose`. 
+- **Payload JWT Personalizado:** El token fue modelado no solo para portar la autorización, sino para inyectar vitalidad en el Frontend. Lleva intrínseco el rol (`is_admin`), el ID de la tabla `Empresa`, y crucialmente el `nitEmpresa`, que es consumido por las interfaces de React para su lógica de autodetección.
+
+---
+
+## 🔗 Integración cruzada (CORS)
+
+Dado que la arquitectura se divide en la API en el puerto `8000` y el cliente React Vite en el puerto `5173`, el archivo matriz `main.py` incorpora internamente las políticas requeridas usando `CORSMiddleware`, habilitando peticiones directas provenientes del localhost.
+
+---
+
+## 🌱 Datos Iniciales (Seed)
+
+Si necesitas arrancar el entorno rápidamente sin crear flujos de registro manuales en Postman o en el código, utiliza nuestro script:
+```bash
+python seed.py
+```
+Esta herramienta poblará la base de datos automáticamente con:
+- Empresa *Mock*: **06140101801234**
+- Usuario Test: **admin@creapx.com** // Pass: **admin123**
+
+---
+
+## 📡 Uso de la API y Ejemplos de Peticiones
+
+La API se ejecuta localmente usando la URL base: `http://127.0.0.1:8000` (o el puerto que asigne uvicorn). A continuación se muestran ejemplos prácticos de cómo consumir los endpoints utilizando métodos HTTP, como por ejemplo desde React usando `fetch`.
+
+### 1. Petición POST (Ejemplo: Iniciar Sesión)
+El método **POST** se usa para *enviar información* al servidor (para crear recursos o autenticarse). Los datos suelen ir empaquetados en un Body (cuerpo) JSON.
+
+**Router:** `/auth/login` (Definido en `auth.py`)
+
+**Ejemplo con `fetch` en JavaScript:**
+```javascript
+fetch("http://127.0.0.1:8000/auth/login", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    email: "admin@creapx.com",
+    password: "admin123"
+  })
+})
+.then(response => response.json())
+.then(data => console.log("Token JWT recibido:", data))
+.catch(error => console.error("Error:", error));
+```
+
+*(Nota: Enviar credenciales como POST Body es lo ideal en lugar de pasarlos por Query Params)*.
+
+### 2. Petición GET (Ejemplo: Obtener Listado de Empresas)
+El método **GET** se emplea para *solicitar y leer* información del servidor.
+
+**Router:** `/empresas/` (Definido en `empresa.py`)
+
+**Ejemplo con `fetch` en JavaScript:**
+```javascript
+fetch("http://127.0.0.1:8000/empresas/", {
+  method: "GET",
+  headers: {
+    "Content-Type": "application/json"
+    // "Authorization": "Bearer TU_TOKEN_AQUI" // Agregarlo si la ruta requiere estar autenticado
+  }
+})
+.then(response => response.json())
+.then(data => console.log("Lista de empresas:", data))
+.catch(error => console.error("Error:", error));
+```
+
+### 3. Petición DELETE (Ejemplo Formativo)
+El método **DELETE** se utiliza para *eliminar un recurso* específico del sistema.
+*(Nota temporal: Los routers como `empresa.py` o `users.py` actualmente solo tienen endpoints POST y GET, pero la estructura recomendada para un DELETE futuro es la siguiente):*
+
+**Router:** `/empresas/{id}` -> Ej: `/empresas/1`
+
+**Ejemplo con `fetch` en JavaScript:**
+```javascript
+fetch("http://127.0.0.1:10000/empresas/1", {
+  method: "DELETE",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer TU_TOKEN_AQUI" // Rutas destructivas DEBEN ser protegidas
+  }
+})
+.then(response => {
+    if(response.ok) {
+        console.log("Empresa ID 1 eliminada correctamente");
+    }
+})
+.catch(error => console.error("Error:", error));
+
+# 🏥 Frontend - Panel Médico de Control e Impresión
+
+Este es el cliente frontend del sistema médico. Proporciona una interfaz web premium con un diseño moderno de tipo **glassmorphism** (efecto de vidrio), radial-gradients oscuros y animaciones interactivas para gestionar pacientes, citas y generar recetas médicas en PDF de alta fidelidad.
+
+---
+
+## 🛠️ Tecnologías Utilizadas
+
+- **HTML5**: Estructura semántica para la accesibilidad y optimización de SEO.
+- **CSS3 (Vanilla)**: Diseños, layouts adaptativos y animaciones basadas en variables CSS de última generación.
+- **Bootstrap 5**: Componentes estructurados, rejillas y modales adaptativos.
+- **FontAwesome 6**: Iconografía médica y de control administrativo.
+- **SweetAlert2**: Modales de confirmación interactivos y notificaciones en forma de Toast.
+- **html2pdf.js**: Motor del lado del cliente que renderiza y descarga elementos DOM a archivos PDF con alta nitidez (escala 2.5x).
+
+---
+
+## 📂 Estructura de Directorios
+
+- `index.html`: Página de inicio de sesión (Login) con validación animada y loaders integrados.
+- `Pages/`:
+  - `index.html`: Panel de control principal (Listado de pacientes, botones de reporte mensual, estadísticas y constancias).
+  - `citas.html` **[NUEVO]**: Página dedicada para visualizar, buscar y actualizar citas médicas en tiempo real.
+- `css/`:
+  - `login.css`: Maquetación animada de la tarjeta de inicio de sesión.
+  - `styles.css`: Estilos de la interfaz de vidrio, colores de badges, botones flotantes y los estilos especiales para la impresión y exportación a PDF de la receta médica.
+- `Js/`:
+  - `api.js`: Centraliza las llamadas Fetch HTTP hacia la REST API del Backend, inyectando los tokens JWT.
+  - `auth.js`: Controla el ciclo de sesión, roles de administrador y redirecciones.
+  - `patients.js`: Renderizado del listado de pacientes, sincronización, edición y coloreado inteligente de expedientes.
+  - `citas.js`: Formulario de agendamiento y carga de listas rápidas.
+  - `citas-page.js` **[NUEVO]**: Lógica dedicada de control, búsqueda y eliminación física de citas médicas en la página `citas.html`.
+  - `receta.js` **[NUEVO]**: Lógica de llenado del modal de receta médica, autocompletado y renderizado del PDF/Impresión.
+  - `reports.js`: Generación de constancias médicas, informes mensuales y estadísticas.
+
+---
+
+## 🚀 Uso y Configuración
+
+1. **Vincular la API del Backend:**
+   Asegúrate de que la dirección del backend esté correctamente configurada en `frontend/Js/config.js`:
+   ```javascript
+   export const API_BASE_URL = 'http://localhost:3000/api'; // O la URL de tu backend en la nube
+   ```
+
+2. **Ejecutar Localmente:**
+   Al ser archivos estáticos, puedes ejecutar el proyecto:
+   - Abriendo `frontend/index.html` directamente en tu navegador web.
+   - Utilizando una extensión de servidor local como **Live Server** en VS Code (puerto `5500`).
+
+---
+
+## ⚙️ Flujo de Trabajo y Funciones Principales
+
+1. **Control de Sesiones e Interfaz Dinámica:**
+   - La sesión se resguarda mediante un token JWT almacenado en `localStorage`. Si el token no existe, el usuario es redirigido automáticamente a la pantalla de login.
+   - Si el usuario cuenta con el rol de Administrador, el panel de control despliega el acceso oculto para la creación de nuevos usuarios.
+
+2. **Control Inteligente de Citas y Expedientes:**
+   - **Navbar interactivo:** El menú de Citas despliega opciones para agendar (abre modal en el dashboard) o listar (redirige a `citas.html`).
+   - **Acciones Rápidas:** En `citas.html` se puede marcar en vivo la asistencia de un paciente (**Asistió**) o cancelar/eliminar la cita.
+   - **Coloreado Inteligente:** Si un paciente tiene una cita vencida no atendida (estado `'PERDIDA'`), su número de expediente en la tabla principal de pacientes cambia instantáneamente a color **rojo**. Al marcar la cita como asistida, el color vuelve a su estado normal.
+
+3. **Generador de Receta Médica en PDF (Copia Única):**
+   - Se puede abrir desde el botón flotante (FAB) o desde la fila del paciente.
+   - Autocompleta automáticamente datos del paciente (calcula fechas) y del doctor seleccionado (JVPM, dirección, especialidades), permitiendo editarlos libremente antes de imprimir.
+   - Al dar clic en **Descargar PDF** o **Imprimir**, renderiza una plantilla de copia única tamaño Carta vertical con logos incrustados, cuadriculado de horarios y una marca de agua de rodilla centrada y limpia.
+# Sistema de Control de Inventario de Botiquín (React + Google Sheets)
+
+Este es un sistema web premium diseñado en React con TypeScript y Vanilla CSS, estructurado bajo buenas prácticas de Clean Code, para administrar el inventario físico y financiero de un botiquín. La base de datos es en tiempo real y se conecta mediante Google Apps Script directamente a un libro de cálculo de Google Sheets.
+
+Adicionalmente, el proyecto cuenta con soporte de dockerización, orquestación local con Docker Compose, despliegue en Kubernetes mediante Kustomize y un pipeline de Integración Continua (CI) con GitHub Actions.
+
+---
+
+## 🚀 Características Principales
+
+1. **Gestión de Catálogos**: Registro y control de medicamentos (catálogo de productos), proveedores oficiales y usuarios operadores del botiquín.
+2. **Control de Lotes**: Registro exacto de lotes individuales, costo unitario, cantidad inicial, cantidad actual, fecha de compra y fecha de vencimiento.
+3. **Flujo Operativo Híbrido (FEFO + PEPS)**:
+   * **FEFO (First Expired, First Out - Operación)**: Sugiere despachar del lote con fecha de vencimiento más cercana para evitar la merma de fármacos.
+   * **PEPS (Primeras Entradas, Primeras Salidas - Contabilidad)**: Valora financieramente el egreso y consumo contable basándose en los costos de los lotes más antiguos comprados primero.
+4. **Dashboard y Resumen Gerencial**: Tarjetas con indicadores interactivos y gráficos SVG que reflejan en tiempo real el valor total del inventario, consumo, compras del mes, lotes activos y alertas críticas.
+5. **Panel Inteligente de Alertas**:
+   * **Stock Crítico**: Alerta si el consolidado total de unidades de un medicamento es menor a su stock mínimo definido.
+   * **Vencimientos**: Alerta preventiva (menos de 90 días), crítica (menos de 30 días) y alerta de lotes vencidos (bloqueados para el despacho).
+6. **Auditoría Transaccional**: Registro técnico de operaciones (CREATE, UPDATE, DELETE) directo en la hoja `AUDITORIA` de Google Sheets.
+
+---
+
+## 🔄 Flujo de Trabajo (Workflow)
+
+```mermaid
+graph TD
+    A[Inicio: Proveedor y Medicamento creados] --> B[Registrar Compra / Entrada]
+    B --> C[Se crea Lote con Costo, Fecha Compra y Vencimiento]
+    C --> D[Stock se incrementa]
+    D --> E[Módulo Despacho: Seleccionar Producto]
+    E --> F[Sistema ordena Lotes por FEFO: Vence antes -> Sale primero]
+    F --> G[Sistema calcula Costo Contable por PEPS: Comprado antes -> Valora costo]
+    G --> H[Confirmar Despacho / Salida]
+    H --> I[Se reduce stock del lote físico en LOTES]
+    H --> J[Se registra movimiento en MOVIMIENTOS_INVENTARIO con costo PEPS]
+    H --> K[Se desglosa lote afectado en DESPACHOS]
+    H --> L[Se registra log en AUDITORIA]
+```
+
+### 1. Proceso de Abastecimiento (Al Comprar)
+1. Ingrese a la pestaña **Registrar Compra**.
+2. Seleccione el medicamento y el proveedor.
+3. Defina el código único de lote (ej: `L-PARA-2026A`).
+4. Ingrese la cantidad de unidades compradas y su costo unitario neto.
+5. Establezca la fecha de vencimiento e ingrese notas del documento de compra si es necesario.
+6. Haga clic en **Registrar Compra**:
+   * Se crea una fila en la hoja `LOTES` con `cantidad_actual = cantidad`.
+   * Se crea un movimiento tipo `COMPRA` en `MOVIMIENTOS_INVENTARIO` para alimentar el gráfico de flujos y compras del mes.
+
+### 2. Proceso de Distribución (Al Despachar)
+1. Ingrese a la pestaña **Registrar Despacho**.
+2. Seleccione el medicamento a entregar (solo se listan productos con stock disponible).
+3. Escriba la cantidad solicitada.
+4. **Propuesta del Sistema (FEFO + PEPS)**: El sistema generará una caja de sugerencia detallando:
+   * **FEFO Físico**: Los lotes específicos de los que se tomará el medicamento, priorizando los que expiran primero.
+   * **PEPS Contable**: El desglose de costos imputando el precio unitario del lote que se compró primero históricamente.
+5. Indique quién despacha (operador activo) y el nombre de la persona o departamento receptor.
+6. Presione **Confirmar Despacho**:
+   * Se descuenta el stock físico de los lotes seleccionados por FEFO en la hoja `LOTES`.
+   * Se añade una entrada en `MOVIMIENTOS_INVENTARIO` con tipo `DESPACHO` y con el valor unitario imputado por el cálculo PEPS contable.
+   * Se registra el desglose físico detallado en la hoja `DESPACHOS`.
+   * Se registra log en `AUDITORIA`.
+
+---
+
+## 📖 Guía de Módulos y Páginas
+
+A continuación se detalla el propósito, funcionamiento y un ejemplo de uso de cada una de las pestañas que integran el sistema de control del botiquín:
+
+### 1. 📊 Panel General (Dashboard)
+* **📌 Propósito (¿Para qué sirve?):** Ofrece una visión general en tiempo real del estado de abastecimiento y la salud financiera del botiquín mediante indicadores clave (KPIs), gráficas interactivas y un panel inteligente de alertas críticas.
+* **⚙️ ¿Cómo funciona?:** Consolida y analiza las existencias en la base de datos para calcular:
+  * **Valor del Inventario:** Costo total acumulado de todos los lotes activos (unidades disponibles × costo unitario).
+  * **Consumo del Mes:** Sumatoria del costo contable de todos los despachos registrados en el mes actual.
+  * **Alertas de Stock Mínimo:** Identificación automática de productos cuya cantidad física total es menor que el stock de seguridad configurado.
+  * **Alertas de Expiración:** Clasificación de lotes por proximidad a vencer en tres niveles: Vencidos (bloqueados automáticamente para el despacho), Alerta Crítica (vence en menos de 30 días) y Alerta Preventiva (vence en un rango de 30 a 90 días).
+  * **Gráfico SVG de Flujo:** Tendencia visual de las compras vs. egresos de los últimos meses.
+* **💡 Ejemplo Práctico:** Al iniciar la jornada, el farmacéutico entra a la aplicación y en el Panel General observa una alerta en rojo: *"¡Stock Crítico! Ibuprofeno 400mg tiene 10 unidades disponibles (Mínimo: 15)"* y otra en amarillo: *"¡Alerta Preventiva! Lote L-PARA-03 de Paracetamol con 40 unidades vence en 45 días"*. Esto le indica inmediatamente que debe tramitar una orden de compra de Ibuprofeno y priorizar el despacho de ese lote de Paracetamol.
+
+### 2. 📦 Inventario Físico (Catálogo e Inventario)
+* **📌 Propósito (¿Para qué sirve?):** Centraliza el catálogo maestro de medicamentos permitiendo su creación, edición, borrado lógico y el desglose en tiempo real de lotes y unidades físicas de cada producto.
+* **⚙️ ¿Cómo funciona?:** Muestra una tabla compacta con todos los medicamentos. Al hacer clic en un producto, se expande un panel que detalla los lotes activos asociados (fecha de compra, costo unitario, cantidad inicial y cantidad remanente). Además, incluye un formulario interactivo para agregar nuevos productos con la opción de dar de alta un lote inicial de forma simultánea.
+* **💡 Ejemplo Práctico:** Para registrar un medicamento que nunca antes ha estado en inventario, vas a la pestaña **Inventario Físico**, haces clic en **Nuevo Producto**, rellenas el nombre *"Loratadina 10mg"*, categoría *"Antihistamínicos"*, y activas la casilla *"Registrar lote inicial"*. Completa los campos con cantidad *50*, costo unitario *0.20 USD*, lote *L-LORA-01* y fecha de vencimiento *2028-05-15*. Al guardar, el producto queda ingresado en el catálogo y su lote listo para ser despachado.
+
+### 3. 🛍️ Registrar Compra (Abastecimiento de Lotes)
+* **📌 Propósito (¿Para qué sirve?):** Permite ingresar nuevos lotes de productos existentes en el catálogo para reabastecer el stock, registrando la trazabilidad del proveedor y los costos del lote.
+* **⚙️ ¿Cómo funciona?:** A través de un formulario estructurado, el usuario selecciona un medicamento del catálogo y un proveedor autorizado. Posteriormente, indica el código único del lote (para rastreo de vencimientos), la cantidad de unidades, el costo unitario de adquisición y la fecha de expiración. Al confirmar, el sistema suma las existencias al lote y genera una transacción tipo `COMPRA` en el historial contable.
+* **💡 Ejemplo Práctico:** El proveedor *Droguería Médica S.A.* entrega una caja de *Paracetamol 500mg*. En la pestaña **Registrar Compra**, seleccionas *Paracetamol 500mg*, seleccionas el proveedor, escribes el lote de fábrica *PAR-2026B*, ingresas cantidad *200*, costo unitario *0.15 USD*, y fecha de vencimiento *2029-01-10*. Tras pulsar *"Registrar Compra"*, el inventario global de Paracetamol se incrementa inmediatamente en 200 unidades asociadas a este nuevo lote.
+
+### 4. 🚚 Registrar Despacho (Despacho de Medicinas)
+* **📌 Propósito (¿Para qué sirve?):** Gestiona la entrega física de medicamentos a pacientes o departamentos internos bajo reglas de control físico y contabilidad financiera automatizadas.
+* **⚙️ ¿Cómo funciona?:** El usuario selecciona el medicamento y la cantidad a despachar. El motor de la app genera al instante una propuesta dual:
+  1. **FEFO Físico (First Expired, First Out):** Indica de qué lote(s) específico(s) deben tomarse las unidades físicas (priorizando los más próximos a expirar para evitar merma).
+  2. **PEPS Contable (Primeras Entradas, Primeras Salidas):** Determina el costo financiero del despacho, calculándolo con base en el costo unitario de las unidades más antiguas que ingresaron al botiquín.
+  El usuario selecciona al operador que despacha, escribe el nombre del receptor e ingresa la justificación médica. Al guardar, se descuentan las unidades físicas de los lotes correspondientes y se registra un egreso tipo `DESPACHO` con el valor calculado por PEPS.
+* **💡 Ejemplo Práctico:** Una enfermera solicita *30 unidades* de *Ibuprofeno 400mg*. En inventario hay dos lotes: el lote `IBU-A` (vence en julio de 2026, costo $0.30, con 20 unidades) y el lote `IBU-B` (vence en diciembre de 2026, costo $0.35, con 100 unidades). Al ingresar la cantidad de 30:
+  * El sistema propone retirar físicamente: *20 unidades de IBU-A* y *10 unidades de IBU-B* (FEFO).
+  * El sistema calcula el costo contable: *(20 x $0.30) + (10 x $0.35) = 9.50 USD* (PEPS).
+  Se completa el registro a nombre de la enfermera receptora y se presiona *"Confirmar Despacho"*.
+
+### 5. 👥 Proveedores (Directorio de Proveedores)
+* **📌 Propósito (¿Para qué sirve?):** Administra el directorio de contactos oficiales de las droguerías, farmacéuticas y distribuidores que surten al botiquín.
+* **⚙️ ¿Cómo funciona?:** Muestra una interfaz limpia con tarjetas o listas que resumen el nombre de la empresa, persona de contacto, teléfono y correo electrónico. Cuenta con un formulario sencillo para dar de alta nuevos proveedores y un botón para dar de baja (desactivar lógicamente) a aquellos con los que ya no se opere.
+* **💡 Ejemplo Práctico:** Deseas registrar un nuevo distribuidor de vacunas. Ingresas al módulo de **Proveedores**, haces clic en **Agregar Proveedor** y rellenas el formulario: Nombre: *Distribuidora Farma-Vida*, Contacto: *Ing. Luis Pineda*, Teléfono: *2233-4455*, Email: *ventas@farmavida.com*. A partir de ese momento, *Distribuidora Farma-Vida* aparecerá como opción elegible en la pantalla de reabastecimiento/compras.
+
+### 6. 📜 Historial y Auditoría (Kardex, Auditoría y Ajustes)
+* **📌 Propósito (¿Para qué sirve?):** Garantiza la máxima transparencia y control interno. Registra el Kardex de inventario completo, guarda bitácoras técnicas de cambios y permite la conciliación de discrepancias mediante ajustes físicos.
+* **⚙️ ¿Cómo funciona?:** Se divide en tres sub-paneles clave:
+  * **Kardex (Movimientos):** Historial cronológico detallado de todos los ingresos (`COMPRA`), egresos (`DESPACHO`) y ajustes del botiquín.
+  * **Auditoría:** Logs técnicos del sistema que indican la fecha exacta, el usuario operador y la acción CRUD realizada en el Google Sheets.
+  * **Ajustes de Inventario:** Formulario que permite igualar el stock del sistema con el stock real contado en físico en caso de pérdidas, vencimientos no detectados o errores de digitación. Modifica directamente las cantidades en la tabla de lotes y genera un movimiento tipo `AJUSTE`.
+* **💡 Ejemplo Práctico (Ajuste):** Durante la auditoría de fin de mes, se descubre que en el estante físico quedan *48 tabletas* de *Loratadina* del lote *L-LORA-01*, pero el sistema indica que hay *50* (dos se dañaron por humedad). El operador va a la pestaña **Historial y Auditoría**, abre el formulario de **Ajuste de Inventario**, selecciona el lote *L-LORA-01*, coloca la cantidad nueva de *48* y escribe en el motivo *"Mermas por daño físico / humedad"*. El sistema corrige las existencias a 48 y guarda el registro del ajuste para justificación administrativa.
+
+### 7. ⚙️ Configuración (Ajustes de Enlace Cloud)
+* **📌 Propósito (¿Para qué sirve?):** Establece la conexión de red entre la aplicación web React y el libro de cálculo de Google Sheets. También permite gestionar los perfiles de usuarios operadores.
+* **⚙️ ¿Cómo funciona?:** Ofrece una caja de texto para guardar la URL de la aplicación web de Google Apps Script. Cuenta con una opción para realizar pruebas de comunicación (ping-pong) para verificar que no haya problemas de red o CORS. Incluye un interruptor maestro para alternar entre el **Modo Simulador Local** (ejecución sin conexión a internet) y el **Modo Nube (Google Sheets)**. Adicionalmente, cuenta con un listado para agregar usuarios y asignarles roles para la firma de despachos y compras.
+* **💡 Ejemplo Práctico:** Tras crear y publicar tu Apps Script en la nube, copias su URL de implementación. Vas a **Configuración**, pegas la dirección, presionas *"Probar Conexión"* y obtienes una alerta de *"Conexión Exitosa"*. Luego, cambias el switch a *"Nube"*. A partir de ese instante, la aplicación deja de simular datos locales y empieza a leer y escribir en tiempo real en la hoja de cálculo compartida en Google Drive.
+
+---
+
+## 🛠️ Arquitectura Técnica y Conexión
+
+La aplicación cuenta con un **Modo Simulador Local** activado por defecto (para pruebas offline) y un **Modo Nube** que interactúa con Google Sheets de forma asíncrona a través de una API construida sobre Google Apps Script.
+
+### Actualización del Apps Script en Google Sheets
+Para que la aplicación pueda consultar los registros, es imperativo actualizar la función `doPost(e)` de su archivo Google Apps Script para dar soporte a la acción `read`.
+
+Pegue el siguiente switch en su editor de Apps Script reemplazando el `doPost` original:
+
+```javascript
+function doPost(e) {
+  try {
+    const body = JSON.parse(e.postData.contents);
+    const action = body.action;
+    const sheetName = body.sheet;
+    const usuario = body.usuario || "SYSTEM";
+
+    validateSheet(sheetName);
+
+    switch (action) {
+      case "read":
+        return jsonResponse(getAll(sheetName));
+      case "create":
+        return jsonResponse(createRecord(sheetName, body.data, usuario));
+      case "update":
+        return jsonResponse(updateRecord(sheetName, body.uuid, body.data, usuario));
+      case "delete":
+        return jsonResponse(deleteRecord(sheetName, body.uuid, usuario));
+      default:
+        throw new Error("Acción inválida");
+    }
+  } catch (err) {
+    return jsonResponse({
+      success: false,
+      message: err.message
+    });
+  }
+}
+```
+
+### Configuración del Frontend
+1. Copie la **URL del Web App** generado tras implementar el script en Google Sheets.
+2. En la aplicación React, vaya a la sección **Configuración**.
+3. Pegue el URL en la caja de texto y presione **Probar Conexión**.
+4. Si la prueba es satisfactoria, el sistema guardará el URL. Cambie el interruptor a **Nube (Google Sheets)** para comenzar a operar en la base de datos real.
+
+---
+
+## 📈 Estructura del Libro de Cálculo (Google Sheets)
+
+El sistema espera las siguientes hojas (Tablas) en su libro de Google Sheets. Todas deben tener los encabezados exactos detallados abajo (en minúsculas y sin acentos) en la primera fila:
+
+* **PRODUCTOS**: `uuid`, `nombre`, `descripcion`, `categoria`, `stock_minimo`, `estado`
+* **PROVEEDORES**: `uuid`, `nombre`, `contacto`, `telefono`, `email`, `estado`
+* **LOTES**: `uuid`, `producto_uuid`, `proveedor_uuid`, `codigo_lote`, `cantidad_inicial`, `cantidad_actual`, `costo_unitario`, `fecha_compra`, `fecha_vencimiento`, `estado`
+* **MOVIMIENTOS_INVENTARIO**: `uuid`, `producto_uuid`, `lote_uuid`, `tipo`, `cantidad`, `costo_unitario`, `fecha`, `usuario`, `detalle`, `estado`
+* **DESPACHOS**: `uuid`, `movimiento_uuid`, `lote_uuid`, `producto_uuid`, `cantidad`, `despachado_por`, `recibido_por`, `fecha`, `estado`
+* **USUARIOS**: `uuid`, `nombre`, `rol`, `email`, `estado`
+* **AUDITORIA**: *(No requiere uuid predefinido, el script añade filas con 7 columnas: id_auditoria, fecha, usuario, accion, hoja, uuid_registro, detalle)*
+* **AJUSTES_INVENTARIO**: `uuid`, `lote_uuid`, `cantidad_anterior`, `cantidad_nueva`, `motivo`, `fecha`, `usuario`, `estado`
+
+---
+
+## 💻 Desarrollo y Ejecución Local
+
+Para ejecutar el servidor de desarrollo en su entorno local con Node.js, siga estos pasos:
+
+```bash
+# 1. Instalar dependencias
+npm install
+
+# 2. Iniciar el servidor local de desarrollo
+npm run dev
+```
+
+La aplicación se ejecutará por defecto en `http://localhost:5173`.
+
+---
+
+## 🐳 Contenedores y Docker
+
+El proyecto está preparado para ejecutarse de forma aislada y contenerizada, asegurando consistencia entre entornos de desarrollo y producción.
+
+### Dockerfile (Build Multi-Stage)
+El [Dockerfile](file:///c:/Users/ale_d/Documents/Creapx/2026/Ing.Raquel/Dockerfile) del proyecto utiliza un enfoque multi-etapa:
+1. **Etapa de Construcción (build)**: Utiliza `node:22-alpine` para instalar las dependencias, copiar los archivos fuente y ejecutar la compilación de producción (`npm run build`), generando los archivos estáticos en la carpeta `/app/dist`.
+2. **Etapa de Producción**: Utiliza un servidor web ultraligero `nginx:alpine` para servir el contenido compilado en el puerto `80`.
+
+### Docker Compose
+Para levantar la aplicación localmente mediante contenedores, se proporciona un archivo [docker-compose.yml](file:///c:/Users/ale_d/Documents/Creapx/2026/Ing.Raquel/docker-compose.yml) configurado. 
+
+Para construir y arrancar el contenedor:
+```bash
+docker compose up --build -d
+```
+Esto creará el contenedor y lo expondrá en el puerto `80` de su máquina local (`http://localhost`).
+
+Para detener el contenedor:
+```bash
+docker compose down
+```
+
+---
+
+## ☸️ Despliegue en Kubernetes (Kustomize)
+
+El repositorio incluye la configuración declarativa necesaria para desplegar la aplicación en un clúster de Kubernetes usando **Kustomize** para la gestión de entornos e imágenes.
+
+### Manifiestos de Kubernetes
+* **[deployment.yaml](file:///c:/Users/ale_d/Documents/Creapx/2026/Ing.Raquel/deployment.yaml)**: Define un Deployment de Kubernetes (`botiquin-web`) con 1 réplica. Configura el contenedor para escuchar en el puerto `80` y define la política de descarga de imágenes como `IfNotPresent`.
+* **[service.yaml](file:///c:/Users/ale_d/Documents/Creapx/2026/Ing.Raquel/service.yaml)**: Expone el Deployment usando un servicio de tipo `NodePort` en el puerto `80`.
+* **[configmap.yaml](file:///c:/Users/ale_d/Documents/Creapx/2026/Ing.Raquel/configmap.yaml)**: Configura las variables de entorno para el contenedor, incluyendo `APP_MODE: "production"`.
+* **[kustomization.yaml](file:///c:/Users/ale_d/Documents/Creapx/2026/Ing.Raquel/kustomization.yaml)**: Orquesta el despliegue de los tres recursos anteriores. Adicionalmente, incluye una regla de transformación de imágenes para mapear la imagen base local (`botiquin-web`) con la imagen del registro de producción final (`ccr.ccs.tencentyun.com/demo/mywebapp`).
+
+### Comandos de Despliegue
+
+Para inspeccionar la configuración final generada por Kustomize sin aplicarla:
+```bash
+kubectl kustomize .
+```
+
+Para aplicar los manifiestos directamente en el clúster:
+```bash
+kubectl apply -k .
+```
+
+Para eliminar el despliegue de Kubernetes:
+```bash
+kubectl delete -k .
+```
+
+---
+
+## 🤖 Integración Continua (CI/CD)
+
+El proyecto cuenta con un flujo de integración continua automatizado a través de GitHub Actions, configurado en [.github/workflows/node.yml](file:///c:/Users/ale_d/Documents/Creapx/2026/Ing.Raquel/.github/workflows/node.yml).
+
+### Workflow: Node.js CI
+Este pipeline se ejecuta automáticamente ante cada evento de `push` o `pull_request` sobre la rama `master`. Realiza las siguientes tareas de validación:
+1. **Configuración de Entorno**: Descarga el código y configura Node.js en su versión `22`, habilitando el almacenamiento en caché para `npm` para acelerar ejecuciones posteriores.
+2. **Instalación**: Ejecuta `npm ci` para realizar una instalación limpia y exacta de las dependencias.
+3. **Linter (Calidad de Código)**: Ejecuta `npm run lint` (`eslint .`) para comprobar que el código cumple con las reglas estilísticas y no contiene errores sintácticos o de tipado.
+4. **Construcción (Build)**: Compila el proyecto mediante Vite y TypeScript (`tsc -b && vite build`) para asegurar que no hay errores de compilación antes de que se integren los cambios.
+
+# Gas Flama Frontend ⚡
+
+Aplicación móvil y web multiplataforma desarrollada en **Flutter** para la gestión, distribución y rastreo satelital en tiempo real de cilindros de gas. 
+
+---
+
+## Características de la Aplicación
+
+- **Estética Premium**: Diseño visual oscuro moderno (HSL Antracita), gradientes vibrantes y micro-animaciones para una experiencia premium.
+- **Sistema Multi-rol Integrado**:
+  - **Clientes**: Registrar dirección, seleccionar ubicación interactiva en mapa (OpenStreetMap), realizar pedidos de gas y rastrear la ruta en vivo del repartidor asignado.
+  - **Repartidores**: Cambiar su disponibilidad online/offline, visualizar pedido asignado, trazar ruta y reportar periódicamente su GPS en segundo plano al estar en camino.
+  - **Administradores**: Monitorizar pedidos activos, asignar entregas a repartidores libres y visualizar en un mapa general interactivo las ubicaciones de todos los camiones activos.
+- **Arquitectura Limpia**: Código estructurado por capas y características, gestionado por estados de **BLoC/Cubit**.
+
+---
+
+## Estructura de Carpetas (`lib/`)
+
+```text
+lib/
+├── core/
+│   ├── constants/  # Constantes (endpoints API y nombres de eventos Socket)
+│   ├── network/    # Cliente Dio con interceptores automáticos de JWT
+│   ├── services/   # Servicios globales (Sockets, LocalStorage, Geolocator)
+│   └── theme/      # Definición de colores premium y estilos visuales
+├── shared/
+│   ├── models/     # Modelos fuertemente tipados (Usuario, Pedido, Repartidor)
+│   └── widgets/    # Botones con gradientes y inputs animados reutilizables
+└── features/
+    ├── auth/       # Registro de clientes, Login y BloC de sesión
+    ├── clientes/   # Panel de cliente, creación de pedido y tracking en vivo
+    ├── repartidores/# Panel de repartidor, mapa de ruta y publicador GPS
+    └── admin/      # Panel de administrador, modal de asignación y mapa general en vivo
+```
+
+---
+
+## Comandos de Ejecución
+
+> [!IMPORTANT]
+> Todos los comandos deben ser ejecutados dentro de la carpeta `frontend/`.
+
+1. **Obtener dependencias**:
+   ```bash
+   flutter pub get
+   ```
+
+2. **Ejecutar la aplicación**:
+   ```bash
+   flutter run
+   ```
+
+3. **Verificar validez estática del código**:
+   ```bash
+   flutter analyze
+   ```
+
+4. **Limpiar caché del proyecto**:
+   ```bash
+   flutter clean
+   ```
+
+---
+
+## Configuración del Servidor y Conectividad
+
+Para cambiar la dirección IP a la que apunta el frontend, edita el archivo:
+[lib/core/constants/app_constants.dart](file:///c:/Users/ale_d/Documents/Creapx/2026/LicAdriana/frontend/lib/core/constants/app_constants.dart)
+
+- **Para Pruebas en Web o Dispositivos Locales**:
+  `static const String baseUrl = 'http://localhost:3000';`
+- **Para Emulador Android de Android Studio**:
+  `static const String baseUrl = 'http://10.0.2.2:3000';`
+- **Para Dispositivos Físicos**:
+  Usa la dirección IP local de tu máquina en la misma red Wi-Fi (ej. `http://192.168.1.50:3000`).
+
+---
+
+## Permisos requeridos
+- **Android**: La app solicita automáticamente permisos a través de la librería `geolocator`. Asegúrate de que los permisos de GPS estén habilitados en tu emulador/dispositivo.
+# Creapx - Recolector de Facturas
+
+**Recolector de Facturas** es una aplicación de escritorio desarrollada con PySide6 (Qt) para la automatización y descarga masiva de facturas (archivos PDF y JSON/XML) recibidas por correo electrónico. Está diseñada para conectarse a cuentas de correo (como Gmail mediante IMAP) y buscar, extraer y guardar adjuntos de remitentes específicos de forma autónoma.
+
+---
+
+## 🚀 Instalación y Ejecución
+
+Esta aplicación se ejecuta sobre Python 3. Sigue los siguientes pasos para preparar tu entorno y ejecutar el programa:
+
+### 1. Preparar el Entorno Virtual (`venv`)
+Es recomendable utilizar el entorno virtual provisto en la carpeta del proyecto para no interferir con otras librerías del sistema:
+
+- **En Windows (PowerShell):**
+  ```powershell
+  # Si PowerShell bloquea la ejecución de scripts por políticas de seguridad, puedes habilitarla para la sesión actual con:
+  # Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+  
+  .\venv\Scripts\Activate.ps1
+  ```
+- **En Windows (Símbolo del sistema / CMD):**
+  ```cmd
+  .\venv\Scripts\activate.bat
+  ```
+- **En Linux / macOS:**
+  ```bash
+  source venv/bin/activate
+  ```
+
+*Nota: Si la carpeta `venv` no existiera en tu equipo o deseas recrearla, ejecuta: `python -m venv venv` antes de realizar la activación.*
+
+### 2. Configurar la Base de Datos Neon (PostgreSQL)
+Esta versión utiliza una base de datos en la nube (Neon/Postgres) para gestionar licenciamientos de forma dinámica y evitar duplicidades de facturas entre diferentes dispositivos.
+
+1. Crea un archivo llamado `.env` en la raíz del proyecto (puedes copiar y renombrar el archivo [.env.example](file:///c:/Users/ale_d/Documents/Creapx/2026/Recolector-Facturas/.env.example)).
+2. Agrega tu variable `DATABASE_URL` con tu cadena de conexión real de Neon (puedes usar el script de ofuscación para protegerla). Ejemplo:
+   ```env
+   DATABASE_URL=enc:TUS_DATOS_OFUSCADOS_AQUÍ
+   ```
+   *Nota: La aplicación inicializará automáticamente las tablas y tipos necesarios (`licenses`, `device_logs`, `downloaded_messages`) en Neon de forma transparente en su arranque.*
+
+### 3. Instalar Dependencias
+Una vez activado el entorno virtual (verás el indicador `(venv)` a la izquierda en tu consola), instala los paquetes requeridos:
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Ejecutar la Aplicación
+
+- **Modo normal:**
+  ```bash
+  python main.py
+  ```
+- **Modo de recuperación (Soporte técnico / Resetear licencia):**
+  ```bash
+  python main.py --recovery
+  ```
+
+---
+
+## 🛠️ Componentes Principales de la Aplicación
+
+La aplicación se divide en tres ventanas principales, dependiendo del estado de la licencia y cómo el usuario inicia el sistema.
+
+### 1. Setup Inicial (`SetupWindow`)
+Esta es la primera ventana que verás al ejecutar la aplicación por primera vez en un equipo nuevo. 
+- **Propósito:** Validar la licencia del producto y asociar la aplicación a tu cuenta de usuario.
+- **Campos requeridos:**
+  - **Correo electrónico:** El correo ligado a tu compra o cuenta Creapx.
+  - **Proveedor de correo:** (Ej. Gmail, Outlook, IMAP Genérico).
+  - **Código de activación Creapx:** La licencia única entregada por soporte o en la plataforma.
+- **Acción:** Al presionar "Guardar y continuar", el sistema se comunica con los servidores de validación para activar tu copia. Si es exitosa, se genera el archivo encriptado `config.json.enc` y se abre el panel principal.
+
+### 2. Panel Principal (`MainPanelWindow`)
+El núcleo de la aplicación donde ocurre toda la operación y monitoreo del recolector.
+- **Estado del sistema:** Muestra si el software está correctamente licenciado.
+- **Configuración de Correo (Gmail / IMAP):** 
+  - Ingresa tu correo y **Contraseña de Aplicación** (App Password). *Nota: No uses tu contraseña personal, en Gmail debes generar una "Contraseña de aplicación" desde la configuración de seguridad.*
+  - Puedes probar la conexión y guardar la configuración, la cual se almacena de forma ofuscada en `mail_config.json`.
+- **Remitentes Autorizados:**
+  - Solo se descargarán facturas de los correos agregados a esta lista de confianza.
+  - Puedes agregar correos específicos (ej. `facturacion@empresa.com`) o un dominio completo (ej. `@empresa.com`).
+- **Rango de Búsqueda:** Define la fecha de inicio ("Desde") y fin ("Hasta") de los correos que la aplicación debe escanear.
+- **Recolección en 2do Plano:** Cuenta con un botón para **"Iniciar recolección de facturas"**. Esto ejecuta un proceso invisible (Async) con `QThread` para que la ventana nunca se quede "congelada".
+- **Log / Visor de Estado:** Una consola insertada en la interfaz te informa de todos los movimientos: conexión a IMAP, búsqueda de facturas, adjuntos descargados y errores.
+
+### 3. Modo Recuperación (`RecoveryWindow`)
+Ventana para fines de soporte técnico o para restablecer la licencia.
+- **Propósito:** Restaurar un estado inválido o ingresar una clave especial de soporte en casos donde el archivo de activación esté corrompido o se deba desvincular un equipo.
+- **Cómo acceder:** Se debe ejecutar el programa desde consola/terminal adjuntando la bandera `--recovery`:
+  ```bash
+  python main.py --recovery
+  ```
+- **Uso:** Al abrir, pedirá una **"Clave de soporte"** y al validar exitosamente reestablecerá tu licencia, cerrándose automáticamente para abrir la aplicación de manera normal.
+
+---
+
+## ⚙️ Proceso paso a paso para configurar el sistema
+
+Si acabas de instalar o descargar la aplicación, sigue este proceso:
+
+1. **Abre el Programa:**
+   Inicia la aplicación normalmente (abriendo el ejecutable o corriendo `python main.py`).
+
+2. **Setup y Activación:**
+   En la pantalla de bienvenida ingresa tu correo electrónico, tu proveedor y el **Código de Activación** proporcionado por el proveedor de Creapx. Clic en **Guardar y continuar**.
+
+3. **Configura tu acceso IMAP / Gmail:**
+   Dentro del *Panel Principal*, ve a la sección de **Configuración de correo**:
+   - Ingresa tu dirección de correo electrónico.
+   - En la contraseña, ingresa tu **Password de Aplicación** de Google (o tu proveedor).
+   - Haz clic en **Probar conexión Gmail**, deberías recibir un mensaje de "Éxito".
+   - Finalmente, haz clic en **Guardar configuración de correo**. 
+
+4. **Registra las empresas/clientes (Remitentes):**
+   Ve a **Remitentes autorizados** y escribe de qué correos esperas recibir facturas. Por ejemplo puedes poner `@proveedor.com` y dar clic a **Agregar remitente**.
+
+5. **Busca y Descarga las Facturas:**
+   - Selecciona en el calendario de "Rango de fechas" de dónde a dónde quieres buscar facturas en tu bandeja de entrada.
+   - Presiona **Iniciar recolección de facturas**.
+   - En la consola inferior verás los mensajes en vivo. Al finalizar el proceso, tus PDFs y JSONs estarán guardados dentro de las carpetas locales en `./Facturas/PDF/` y `./Facturas/JSON/`.
+
+---
+
+## 📂 Estructura de carpetas generadas
+
+- `config/` : Archivos de configuraciones de licencia `config.json.enc` y de email `mail_config.json`.
+- `Facturas/PDF/` : Donde se guardan las representaciones visuales (.pdf).
+- `Facturas/JSON/` : Donde se extraen los archivos DTE/XML/JSON descargados.
+- `logs/` : Archivos de texto con auditorías completas (`AuditLogger`) para monitorear usos fuera de lo común o posibles errores del sistema de recolección.

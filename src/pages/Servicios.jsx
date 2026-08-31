@@ -37,8 +37,8 @@ function Servicios() {
                 <li>Ahorro de tiempo operativo</li>
               </ul>
             </div>
-
-            {/* Facturación Electrónica */}
+            {/*
+            {/* Facturación Electrónica }
             <div className="p-8 border rounded-xl hover:shadow-lg transition">
               <h2 className="text-2xl font-semibold text-blue-700 mb-4">
                 Facturación Electrónica
@@ -49,7 +49,7 @@ function Servicios() {
                 <li>Integración con sistemas existentes</li>
               </ul>
             </div>
-
+*/}
             {/* Sistemas Web y Móviles */}
             <div className="p-8 border rounded-xl hover:shadow-lg transition">
               <h2 className="text-2xl font-semibold text-blue-700 mb-4">
@@ -71,9 +71,10 @@ function Servicios() {
                 <li>PDFs estructurados</li>
                 <li>Excel automatizado</li>
                 <li>Extracción inteligente de datos</li>
+                <li>Gestion de DTE</li>
               </ul>
             </div>
- {/* climatización de aires a condicionados */}
+            {/* climatización de aires a condicionados */}
             <div className="p-8 border rounded-xl hover:shadow-lg transition">
               <h2 className="text-2xl font-semibold text-blue-700 mb-4">
                 Climatización de Aire Acondicionado
@@ -81,7 +82,6 @@ function Servicios() {
               <ul className="space-y-2 text-gray-700 list-disc pl-5">
                 <li>Instalación de aires acondicionados</li>
                 <li>Mantenimiento de aires acondicionados</li>
-                <li>Reparación de aires acondicionados</li>
               </ul>
             </div>
             {/* Instalacion de Camaras de Seguridad */}
@@ -92,19 +92,24 @@ function Servicios() {
               <ul className="space-y-2 text-gray-700 list-disc pl-5">
                 <li>Instalación de camaras de seguridad</li>
                 <li>Mantenimiento de camaras de seguridad</li>
-                <li>Reparación de camaras de seguridad</li>
+
               </ul>
             </div>
 
             {/* Soporte y Mantenimiento */}
-            <div className="md:col-span-2 p-8 border rounded-xl hover:shadow-lg transition">
+            <div className="p-8 border rounded-xl hover:shadow-lg transition">
               <h2 className="text-2xl font-semibold text-blue-700 mb-4 text-center">
                 Soporte y Mantenimiento
               </h2>
               <ul className="space-y-2 text-gray-700 list-disc pl-5 max-w-xl mx-auto">
                 <li>Planes mensuales</li>
-                <li>Escalabilidad del sistema</li>
-                <li>Acompañamiento continuo</li>
+                <li>Instalación y configuración de software</li>
+                <li>Instalación y configuración de hardware</li>
+                <li>Mantenimiento preventivo</li>
+                <li>Mantenimiento correctivo</li>
+                <li>Instalacion de pantallas</li>
+                <li>Instalacion de proyectores</li>
+                <li>Instalacion de perifericos y componetes de computo</li>
               </ul>
             </div>
           </div>

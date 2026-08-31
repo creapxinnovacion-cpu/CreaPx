@@ -4,7 +4,7 @@ import emailjs from "@emailjs/browser";
 // ================= IMÁGENES =================
 import javierImg from "../assets/components/img/javier.png";
 import cuaImg from "../assets/components/img/cua.jpeg";
-import cajulImg from "../assets/components/img/cajul.jpg";
+import cajulImg from "../assets/components/img/Alejandro.jpeg";
 
 const Contacto = () => {
   // ================= STATE =================
@@ -200,10 +200,9 @@ const Contacto = () => {
               type="submit"
               disabled={isSending}
               className={`w-full py-3 rounded-lg font-semibold transition
-                ${
-                  isSending
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                ${isSending
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
                 }
               `}
             >
