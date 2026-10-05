@@ -15,14 +15,6 @@ function Footer() {
         <Link to="/portafolio" className="hover:text-blue-400 transition">
           Portafolio Digital
         </Link>
-        <a
-          href="https://github.com/creapxinnovacion-cpu/CreaPx"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hover:text-blue-400 transition"
-        >
-          Repositorio Digital
-        </a>
       </div>
     </footer>
   );
