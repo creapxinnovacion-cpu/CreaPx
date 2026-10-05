@@ -37,8 +37,8 @@ function Servicios() {
                 <li>Ahorro de tiempo operativo</li>
               </ul>
             </div>
-            {/*
-            {/* Facturación Electrónica }
+
+            {/* Facturación Electrónica */}
             <div className="p-8 border rounded-xl hover:shadow-lg transition">
               <h2 className="text-2xl font-semibold text-blue-700 mb-4">
                 Facturación Electrónica
@@ -49,7 +49,6 @@ function Servicios() {
                 <li>Integración con sistemas existentes</li>
               </ul>
             </div>
-*/}
             {/* Sistemas Web y Móviles */}
             <div className="p-8 border rounded-xl hover:shadow-lg transition">
               <h2 className="text-2xl font-semibold text-blue-700 mb-4">
