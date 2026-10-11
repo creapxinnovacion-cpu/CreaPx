@@ -9,18 +9,29 @@ import Tecnologia from "./pages/tecnologia";
 import Contacto from "./pages/contacto";
 import Portafolio from "./pages/Portafolio";
 
-function ScrollToTop() {
-  const { pathname } = useLocation();
+function ScrollToTopAndTrackPageView() {
+  const { pathname, search } = useLocation();
+
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [pathname]);
+
+    // Google Analytics 4 - Pageview tracking on SPA navigation
+    if (typeof window.gtag === "function") {
+      window.gtag("event", "page_view", {
+        page_path: pathname + search,
+        page_location: window.location.href,
+        page_title: document.title,
+      });
+    }
+  }, [pathname, search]);
+
   return null;
 }
 
 function App() {
   return (
     <BrowserRouter>
-      <ScrollToTop />
+      <ScrollToTopAndTrackPageView />
       {/* CONTENEDOR GLOBAL */}
       <div className="min-h-screen w-full flex flex-col">
         {/* NAVBAR */}
