@@ -1,23 +1,43 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-heading: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
 html, body, #root {
   width: 100%;
   height: 100%;
   margin: 0;
+  font-family: var(--font-sans);
+  color: #0f172a;
+  background-color: #0b0f19;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
-/*ajuste de la img */
-.creapx{
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  letter-spacing: -0.025em;
+}
+
+/* Ajuste pulido para logotipo */
+.creapx {
+  max-width: 220px;
+  width: 100%;
+  height: auto;
   border-radius: 1rem;
-  /* Definir una clase personalizada */
-
-  width: 50%;       /* ancho al 50% del contenedor/página */
-  height: 50%;      /* alto al 50% del contenedor/página */
-  margin-bottom: 2rem; /* margen inferior */
-  box-shadow: 0 10px 25px rgba(0,0,0,0.3); /* sombra personalizada */
-  border-radius: 12px; /* esquinas redondeadas */
-  margin-top: 2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.4), 0 0 20px rgba(37, 99, 235, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.Link{
+.creapx:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px -5px rgba(0, 0, 0, 0.5), 0 0 28px rgba(37, 99, 235, 0.35);
+}
+
+.Link {
   text-decoration: none;
 }

@@ -111,7 +111,7 @@ const Contacto = () => {
 
   // ================= UI =================
   return (
-    <div className="relative w-full max-w-7xl mx-auto px-6 py-10 min-h-screen">
+    <div className="relative w-full max-w-7xl mx-auto px-6 py-10 min-h-screen bg-slate-200">
       {/* ================= HEADER ================= */}
       <header className="text-center mb-14">
         <h1 className="text-4xl font-bold text-gray-800 mb-4">CONTACTO</h1>

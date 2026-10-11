@@ -1,138 +1,166 @@
 import React from "react";
+import {
+  Laptop,
+  Terminal,
+  Database,
+  Link2,
+  Cloud,
+  Wrench,
+  Sparkles,
+  Check,
+} from "lucide-react";
+
+const categorias = [
+  {
+    title: "Frontend, Móvil y Escritorio",
+    icon: Laptop,
+    badge: "Interfaces",
+    items: [
+      "React",
+      "TypeScript",
+      "JavaScript (ES6+)",
+      "Flutter (Móvil/Web)",
+      "PySide6 (Qt Desktop)",
+      "HTML5 / CSS3 Vanilla",
+      "Tailwind CSS",
+      "Bootstrap 5",
+      "html2pdf.js",
+      "SweetAlert2",
+      "Astro",
+      "Bulma",
+      "C# ASP.NET",
+      "WPF / WinForms",
+      "Java JSP",
+      "PHP",
+    ],
+  },
+  {
+    title: "Backend & Lógica de Negocio",
+    icon: Terminal,
+    badge: "Core & APIs",
+    items: [
+      "FastAPI (Python)",
+      "Python 3",
+      "Node.js",
+      "Cloudflare Workers",
+      "Google Apps Script",
+      "Laravel (PHP)",
+      "Java Spring Boot",
+      "WebSockets",
+      "QThread (Multihilo)",
+      "SQLAlchemy ORM",
+      "BLoC / Cubit (Flutter)",
+    ],
+  },
+  {
+    title: "Bases de Datos & Storage",
+    icon: Database,
+    badge: "Persistencia",
+    items: [
+      "PostgreSQL",
+      "Neon DB (Serverless)",
+      "MySQL",
+      "SQL Server",
+      "SQLite",
+      "Google Sheets (Nube)",
+      "MongoDB",
+      "Firebase",
+    ],
+  },
+  {
+    title: "Integraciones & Seguridad",
+    icon: Link2,
+    badge: "Conectividad",
+    items: [
+      "JWT (Auth & Tokens)",
+      "EmailJS Integration",
+      "IMAP / Gmail APIs",
+      "OpenStreetMap (Mapas)",
+      "Facturación Electrónica (DTE)",
+      "REST APIs (JSON/XML)",
+      "Cryptography (Cifrado)",
+      "Generación Excel / PDF",
+    ],
+  },
+  {
+    title: "Infraestructura & DevOps",
+    icon: Cloud,
+    badge: "Despliegue",
+    items: [
+      "Docker / Docker Compose",
+      "Kubernetes (Kustomize)",
+      "GitHub Actions (CI/CD)",
+      "Vercel (Hosting Frontend)",
+      "Cloudflare (CDN & Workers)",
+    ],
+  },
+  {
+    title: "Soporte, Redes y Climatización",
+    icon: Wrench,
+    badge: "Operaciones",
+    items: [
+      "Cámaras de Seguridad IP",
+      "Sistemas DVR y Analógicos",
+      "Mantenimiento de Hardware",
+      "Aire Acondicionado & Clima",
+      "Ventilación & Filtración",
+      "Community Manager",
+    ],
+  },
+];
 
 const Tecnologia = () => {
   return (
-    <div className="w-full min-h-screen bg-gray-50 text-gray-900 px-6 py-12">
+    <div className="w-full min-h-screen bg-slate-50 text-slate-900 px-6 py-16">
       {/* ================= HEADER ================= */}
-      <header className="max-w-5xl mx-auto text-center mb-16">
-        <span className="text-sm font-bold tracking-wider text-blue-600 bg-blue-50 px-4 py-1.5 rounded-full uppercase">
-          Stack Tecnológico
-        </span>
-        <h1 className="text-4xl md:text-5xl font-extrabold mt-4 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-indigo-900">
+      <header className="max-w-4xl mx-auto text-center mb-16">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-100/70 text-blue-700 text-xs font-semibold uppercase tracking-wider mb-4">
+
+          <span>Stack Tecnológico Verificado</span>
+        </div>
+        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-slate-900">
           Tecnologías y Herramientas
         </h1>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          Utilizamos herramientas modernas y consolidadas en la industria para construir software rápido, seguro y escalable.
+        <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+          Utilizamos herramientas modernas, robustas y consolidadas en la industria para construir soluciones rápidas, seguras y altamente escalables.
         </p>
       </header>
 
       {/* ================= CATEGORIES GRID ================= */}
-      <section className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-        
-        {/* Frontend / Interfaces */}
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-2xl">💻</span>
-            <h2 className="text-xl font-bold text-blue-700">Frontend, Móvil y Escritorio</h2>
-          </div>
-          <ul className="grid grid-cols-2 gap-y-2.5 text-sm text-gray-600 font-medium">
-            <li className="flex items-center gap-2"><span>•</span> React</li>
-            <li className="flex items-center gap-2"><span>•</span> TypeScript</li>
-            <li className="flex items-center gap-2"><span>•</span> JavaScript</li>
-            <li className="flex items-center gap-2"><span>•</span> Flutter (Móvil/Web)</li>
-            <li className="flex items-center gap-2"><span>•</span> PySide6 (Qt Desktop)</li>
-            <li className="flex items-center gap-2"><span>•</span> HTML5 / CSS3 Vanilla</li>
-            <li className="flex items-center gap-2"><span>•</span> Tailwind CSS</li>
-            <li className="flex items-center gap-2"><span>•</span> Bootstrap 5</li>
-            <li className="flex items-center gap-2"><span>•</span> html2pdf.js</li>
-            <li className="flex items-center gap-2"><span>•</span> SweetAlert2</li>
-            <li className="flex items-center gap-2"><span>•</span> Astro</li>
-            <li className="flex items-center gap-2"><span>•</span> Bulma</li>
-            <li className="flex items-center gap-2"><span>•</span> C# ASP</li>
-            <li className="flex items-center gap-2"><span>•</span> WPF / WinForms</li>
-            <li className="flex items-center gap-2"><span>•</span> Java JSP</li>
-            <li className="flex items-center gap-2"><span>•</span> PHP</li>
-          </ul>
-        </div>
+      <section className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {categorias.map((cat, idx) => {
+          const Icon = cat.icon;
+          return (
+            <div
+              key={idx}
+              className="group bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-lg hover:border-blue-300 transition-all flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="p-2.5 rounded-xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-200">
+                    <Icon className="w-5 h-5" />
+                  </span>
+                  <span className="text-[11px] font-semibold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                    {cat.badge}
+                  </span>
+                </div>
 
-        {/* Backend & APIs */}
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-2xl">⚙️</span>
-            <h2 className="text-xl font-bold text-blue-700">Backend & Lógica de Negocio</h2>
-          </div>
-          <ul className="grid grid-cols-2 gap-y-2.5 text-sm text-gray-600 font-medium">
-            <li className="flex items-center gap-2"><span>•</span> FastAPI (Python)</li>
-            <li className="flex items-center gap-2"><span>•</span> Python 3</li>
-            <li className="flex items-center gap-2"><span>•</span> Node.js</li>
-            <li className="flex items-center gap-2"><span>•</span> Cloudflare Workers</li>
-            <li className="flex items-center gap-2"><span>•</span> Google Apps Script</li>
-            <li className="flex items-center gap-2"><span>•</span> Laravel (PHP)</li>
-            <li className="flex items-center gap-2"><span>•</span> Java Spring Boot</li>
-            <li className="flex items-center gap-2"><span>•</span> WebSockets</li>
-            <li className="flex items-center gap-2"><span>•</span> QThread (Multihilo)</li>
-            <li className="flex items-center gap-2"><span>•</span> SQLAlchemy ORM</li>
-            <li className="flex items-center gap-2"><span>•</span> BLoC / Cubit (Flutter)</li>
-          </ul>
-        </div>
+                <h2 className="text-lg font-bold text-slate-900 mb-4 group-hover:text-blue-600 transition-colors">
+                  {cat.title}
+                </h2>
 
-        {/* Bases de Datos */}
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-2xl">🗄️</span>
-            <h2 className="text-xl font-bold text-blue-700">Bases de Datos & Almacenamiento</h2>
-          </div>
-          <ul className="grid grid-cols-2 gap-y-2.5 text-sm text-gray-600 font-medium">
-            <li className="flex items-center gap-2"><span>•</span> PostgreSQL</li>
-            <li className="flex items-center gap-2"><span>•</span> Neon DB (Serverless)</li>
-            <li className="flex items-center gap-2"><span>•</span> MySQL</li>
-            <li className="flex items-center gap-2"><span>•</span> SQL Server</li>
-            <li className="flex items-center gap-2"><span>•</span> SQLite</li>
-            <li className="flex items-center gap-2"><span>•</span> Google Sheets (Nube)</li>
-            <li className="flex items-center gap-2"><span>•</span> MongoDB</li>
-            <li className="flex items-center gap-2"><span>•</span> Firebase</li>
-          </ul>
-        </div>
-
-        {/* Integraciones & Seguridad */}
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-2xl">🔗</span>
-            <h2 className="text-xl font-bold text-blue-700">Integraciones & Seguridad</h2>
-          </div>
-          <ul className="grid grid-cols-2 gap-y-2.5 text-sm text-gray-600 font-medium">
-            <li className="flex items-center gap-2"><span>•</span> JWT (Auth & Tokens)</li>
-            <li className="flex items-center gap-2"><span>•</span> EmailJS Integration</li>
-            <li className="flex items-center gap-2"><span>•</span> IMAP / Gmail APIs</li>
-            <li className="flex items-center gap-2"><span>•</span> OpenStreetMap (Mapas)</li>
-            <li className="flex items-center gap-2"><span>•</span> Facturación Electrónica (DTE)</li>
-            <li className="flex items-center gap-2"><span>•</span> REST APIs (JSON/XML)</li>
-            <li className="flex items-center gap-2"><span>•</span> Cryptography (Cifrado)</li>
-            <li className="flex items-center gap-2"><span>•</span> Generación Excel / PDF</li>
-          </ul>
-        </div>
-
-        {/* Infraestructura & DevOps */}
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-2xl">🚀</span>
-            <h2 className="text-xl font-bold text-blue-700">Infraestructura & DevOps</h2>
-          </div>
-          <ul className="grid grid-cols-2 gap-y-2.5 text-sm text-gray-600 font-medium">
-            <li className="flex items-center gap-2"><span>•</span> Docker / Docker Compose</li>
-            <li className="flex items-center gap-2"><span>•</span> Kubernetes (Kustomize)</li>
-            <li className="flex items-center gap-2"><span>•</span> GitHub Actions (CI/CD)</li>
-            <li className="flex items-center gap-2"><span>•</span> Vercel (Hosting Frontend)</li>
-            <li className="flex items-center gap-2"><span>•</span> Cloudflare (CDN & Workers)</li>
-          </ul>
-        </div>
-
-        {/* Otras Áreas de Servicio */}
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-2xl">🛠️</span>
-            <h2 className="text-xl font-bold text-blue-700">Soporte, Redes y Climatización</h2>
-          </div>
-          <ul className="grid grid-cols-2 gap-y-2.5 text-sm text-gray-600 font-medium">
-            <li className="flex items-center gap-2"><span>•</span> Cámaras de Seguridad IP</li>
-            <li className="flex items-center gap-2"><span>•</span> Sistemas DVR y Analógicos</li>
-            <li className="flex items-center gap-2"><span>•</span> Mantenimiento de Hardware</li>
-            <li className="flex items-center gap-2"><span>•</span> Aire Acondicionado & Clima</li>
-            <li className="flex items-center gap-2"><span>•</span> Ventilación & Filtración</li>
-            <li className="flex items-center gap-2"><span>•</span> Community Manager</li>
-          </ul>
-        </div>
-
+                <ul className="space-y-2 text-xs sm:text-sm text-slate-600 font-medium">
+                  {cat.items.map((tech, i) => (
+                    <li key={i} className="flex items-center gap-2">
+                      <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                      <span>{tech}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          );
+        })}
       </section>
     </div>
   );
